@@ -1,11 +1,10 @@
 import json
 import re
 import string
-import numpy as np
-import pandas as pd
-
 import gensim
 import nltk
+import numpy as np
+import pandas as pd
 
 
 with open('commanders.json') as json_file:
@@ -50,9 +49,9 @@ oracle_text = [re.sub(tap_cost, " tap_cost ", i) for i in oracle_text]
 oracle_text = [i.lower() for i in oracle_text]
 oracle_text = [re.sub('[.,:()"]|(â€”)', " ", i).split() for i in oracle_text]
 
-names = [i["name"] for i in commanders_json]
 
-texto_cartas = dict(zip(names, oracle_text))
+names = [i["name"] for i in commanders_json]
+ids   = [i["id"] for i in commanders_json]
 
 
 # Generar lexico, corpus y tf idf
@@ -65,13 +64,48 @@ tf_idf = gensim.models.TfidfModel(corpus)
 sims = gensim.similarities.Similarity('text_sim/', tf_idf[corpus], num_features=len(lexico))
 
 
-# Matrix de similitud
+# Matriz de similitud
 sim_matrix = tf_idf[corpus]
 
-max(sims[sim_matrix][0])
+
+# Procesamiento para json
+def ordenar_sims(sim_orig):
+    sims_orden = []
+    for i in sims[sim_orig]:
+        conjunto = list(tuple(zip(i, names, ids)))
+        conjunto = sorted(conjunto, reverse=True)
+        sims_orden.append(conjunto[:11])
+    return sims_orden
+
+
+def sims_a_lista(sims_orden):
+    lista_recomendaciones = []
+
+    for i in sims_orden:
+        salida = {"commander":i[0][1], "id":i[0][2]}
+        recomendaciones = []
+        for rec in i[1:]:
+            valor = rec[0] * 100
+            valor = np.round(valor, 2).item()
+            item = {"commander":rec[1], "similitud": valor, "id": rec[2]}
+            recomendaciones.append(item)
+        salida["recomendaciones"] = recomendaciones
+        lista_recomendaciones.append(salida)
+    
+    return lista_recomendaciones
+
+
+# Exportar recomendaciones
+sims_orden = ordenar_sims(sim_matrix)
+lista_recom = sims_a_lista(sims_orden)
+
+with open('recomendaciones.json', 'w', encoding='utf-8') as f:
+    json.dump(lista_recom, f, ensure_ascii=False, indent=2)
 
 
 # Lexico e indice manual
+texto_cartas = dict(zip(names, oracle_text))
+
 lexico = []
 
 for nombre, texto in texto_cartas.items():
@@ -80,8 +114,6 @@ for nombre, texto in texto_cartas.items():
             lexico.append(palabra)
 
 lexico.sort()
-len(lexico)
-
 texto_indices = []
 
 for texto in texto_cartas.values():
