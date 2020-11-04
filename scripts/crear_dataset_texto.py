@@ -4,6 +4,9 @@ import string
 import numpy as np
 import pandas as pd
 
+import gensim
+import nltk
+
 
 with open('commanders.json') as json_file:
     commanders_json = json.load(json_file, encoding="latin-1")
@@ -51,6 +54,24 @@ names = [i["name"] for i in commanders_json]
 
 texto_cartas = dict(zip(names, oracle_text))
 
+
+# Generar lexico, corpus y tf idf
+lexico = gensim.corpora.Dictionary(oracle_text)
+corpus = [lexico.doc2bow(i) for i in oracle_text]
+tf_idf = gensim.models.TfidfModel(corpus)
+
+
+# Almacenamiento de similitudes
+sims = gensim.similarities.Similarity('text_sim/', tf_idf[corpus], num_features=len(lexico))
+
+
+# Matrix de similitud
+sim_matrix = tf_idf[corpus]
+
+max(sims[sim_matrix][0])
+
+
+# Lexico e indice manual
 lexico = []
 
 for nombre, texto in texto_cartas.items():
@@ -68,5 +89,3 @@ for texto in texto_cartas.values():
     for palabra in texto:
         indices.append(lexico.index(palabra))
     texto_indices.append(indices)
-
-
