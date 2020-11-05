@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Commander Recommender{% endblock %}
+
+{% block body %}
+{% block content %}
+
+<form action="" method="post" novalidate>
+{{ com_form.hidden_tag() }}
+  <div class="grid-choose">
+    <div>
+      {{ com_form.commander }} 
+    </div>
+    <div>
+    <span style="color: red; border:none">{{ error }}</span>
+      {{ com_form.submit() }}
+    </div>
+  </div>
+</form>
+
+{% endblock content %}
+{% endblock body %}

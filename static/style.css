@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+
+html {
+    font-family: "Nunito", sans-serif;
+    background: #fff;
+}
+
+@media only screen
+and (min-device-width: 320px) 
+and (max-device-width: 480px){
+    html {
+        font-family: "Nunito", sans-serif;
+        background: #fff;
+        font-size: 2rem;
+    }
+}
+
+body {
+    max-width: 950px; 
+    margin: auto;
+    background: #fff;
+    padding: 10px;
+}
