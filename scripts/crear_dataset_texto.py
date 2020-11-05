@@ -82,7 +82,8 @@ def sims_a_lista(sims_orden):
     lista_recomendaciones = []
 
     for i in sims_orden:
-        salida = {"commander":i[0][1], "id":i[0][2]}
+        nombre = i[0][1]
+        salida = {"commander": nombre}
         recomendaciones = []
         for rec in i[1:]:
             valor = rec[0] * 100
@@ -91,7 +92,6 @@ def sims_a_lista(sims_orden):
             recomendaciones.append(item)
         salida["recomendaciones"] = recomendaciones
         lista_recomendaciones.append(salida)
-    
     return lista_recomendaciones
 
 
@@ -100,7 +100,7 @@ sims_orden = ordenar_sims(sim_matrix)
 lista_recom = sims_a_lista(sims_orden)
 
 with open('recomendaciones.json', 'w', encoding='utf-8') as f:
-    json.dump(lista_recom, f, ensure_ascii=False, indent=2)
+    json.dump(lista_recom, f, ensure_ascii=False, indent=1)
 
 
 # Lexico e indice manual
