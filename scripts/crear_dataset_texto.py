@@ -8,10 +8,10 @@ import pandas as pd
 
 
 with open('commanders.json') as json_file:
-    commanders_json = json.load(json_file, encoding="latin-1")
+    commanders_json = json.load(json_file, encoding="utf-8")
 
 
-campos = ["id", "name", "oracle_text", "card_faces"]
+campos = ["id", "name", "oracle_text", "card_faces", "image_uris"]
 
 
 edh = []
@@ -40,6 +40,21 @@ def get_oracle_text(edh):
     return textos
 
 
+def get_pic_urls(edh):
+    pic_urls = []
+    for carta in edh:
+        if len(carta["card_faces"]) > 0:
+            try:
+                card_url = carta["card_faces"][0]["image_uris"]["normal"]
+            except:
+                card_url = "https://scryfall.com/"
+            pic_urls.append(card_url)
+        else:
+            card_url = carta["image_uris"]["normal"]
+            pic_urls.append(card_url)
+    return pic_urls
+
+
 mana_cost = "{[0-9WUBRG/PXC]*}"
 tap_cost = "{T}"
 
@@ -52,6 +67,9 @@ oracle_text = [re.sub('[.,:()"]|(â€”)', " ", i).split() for i in oracle_tex
 
 names = [i["name"] for i in commanders_json]
 ids   = [i["id"] for i in commanders_json]
+cards = [i["scryfall_uri"] for i in commanders_json]
+pics  = get_pic_urls(edh)
+
 
 
 # Generar lexico, corpus y tf idf
@@ -72,7 +90,7 @@ sim_matrix = tf_idf[corpus]
 def ordenar_sims(sim_orig):
     sims_orden = []
     for i in sims[sim_orig]:
-        conjunto = list(tuple(zip(i, names, ids)))
+        conjunto = list(tuple(zip(i, names, ids, cards, pics)))
         conjunto = sorted(conjunto, reverse=True)
         sims_orden.append(conjunto[:11])
     return sims_orden
@@ -88,7 +106,7 @@ def sims_a_lista(sims_orden):
         for rec in i[1:]:
             valor = rec[0] * 100
             valor = np.round(valor, 2).item()
-            item = {"commander":rec[1], "similitud": valor, "id": rec[2]}
+            item = {"commander":rec[1], "similitud": valor, "id": rec[2], "url":rec[3], "pic":rec[4]}
             recomendaciones.append(item)
         salida["recomendaciones"] = recomendaciones
         lista_recomendaciones.append(salida)

@@ -30,4 +30,4 @@ commanders = [item for sublist in commanders for item in sublist]
 
 
 with open('commanders.json', 'w', encoding='utf-8') as f:
-    json.dump(commanders, f, ensure_ascii=False, indent=4)
+    json.dump(commanders, f, ensure_ascii=True, indent=1)
