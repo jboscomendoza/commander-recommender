@@ -4,17 +4,34 @@
 
 {% block body %}
 {% block content %}
-<div>
-   <h1>{{ commander }}</h1>
-</div>
-<div>
+
+<div class="cont-rec">
+
+    <div class="commander-rec">
+        <img class="commander-rec-pic" src={{ pic_commander }}>
+        <h3>{{ commander }}</h3>
+    </div>
+
+    <div class="card-rec">
     {% for rec in recoms %}
-        <div>
-            <p> {{rec["commander"]}} ({{ rec["similitud"] }}{{ "%" }}) </p>
+        <div class="card-rec-card">
+        <a href={{ url_for('com_recoms', commander=rec["commander"]) }}>
+            <img class="card-rec-pic" src={{ rec["pic"] }}>
+        </a>
+        <p class="card-rec-name">{{rec["commander"]}}</p>
+        <p class="card-rec-sim">({{ rec["similitud"] }}{{ "%" }})</p>
+        <p>
+            <a class="card-rec-link" href={{ rec["url"] }}, target="_blank">Scryfall</a>
+        </p>
         </div>
     {% endfor %}
+    </div>
+
 </div>
 
+</div>
+<a href={{ url_for('comandante') }}> Inicio </a>
+</div>
 
 {% endblock content %}
 {% endblock body %}

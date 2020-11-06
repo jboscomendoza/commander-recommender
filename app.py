@@ -1,11 +1,11 @@
 import json
-
 from flask import Flask
 from flask import render_template
 from flask import request, redirect, url_for
 from flask_bootstrap import Bootstrap 
 from markupsafe import escape
-from forms import ChooseForm, RECS, NOMBRES
+from forms import ChooseForm
+from com_data import RECS, NOMBRES, COMS
 
 
 app = Flask(__name__)
@@ -18,10 +18,17 @@ def com_recoms(commander):
     for i in RECS:
         if i["commander"] == commander:
             recoms = i["recomendaciones"]
+    for i in COMS:
+        if i["name"] == commander:
+            try:
+                pic_commander = i["image_uris"]["normal"]
+            except:
+                pic_commander = ""
     return render_template(
         "recomendaciones.html",
         commander=commander,
-        recoms=recoms
+        recoms=recoms,
+        pic_commander=pic_commander
     )
 
 
