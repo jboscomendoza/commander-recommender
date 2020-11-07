@@ -19,7 +19,7 @@
             <img class="card-rec-pic" src={{ rec["pic"] }}>
         </a>
         <p class="card-rec-name">{{rec["commander"]}}</p>
-        <p class="card-rec-sim">({{ rec["similitud"] }}{{ "%" }})</p>
+        <p class="card-rec-sim">(Similitud: {{ rec["similitud"] }}{{ "%" }})</p>
         <p>
             <a class="card-rec-link" href={{ rec["url"] }}, target="_blank">Scryfall</a>
         </p>
@@ -27,10 +27,6 @@
     {% endfor %}
     </div>
 
-</div>
-
-</div>
-<a href={{ url_for('comandante') }}> Inicio </a>
 </div>
 
 {% endblock content %}
