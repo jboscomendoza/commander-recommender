@@ -97,3 +97,8 @@ and (max-device-width: 480px){
 .card-rec-link {
     font-size: .75em;
 }
+
+.sim_icon {
+    display: inline-block;
+    max-height: 1em;
+}

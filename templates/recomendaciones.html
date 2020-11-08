@@ -19,7 +19,18 @@
             <img class="card-rec-pic" src={{ rec["pic"] }}>
         </a>
         <p class="card-rec-name">{{rec["commander"]}}</p>
-        <p class="card-rec-sim">(Similitud: {{ rec["similitud"] }}{{ "%" }})</p>
+        
+        <p class="card-rec-sim">
+        {% if rec["similitud"] >= 50 %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_alto.png") }}> 
+        {% elif rec["similitud"] >= 30 %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_medio.png") }}> 
+        {% else %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_bajo.png") }}> 
+        {% endif %}
+        Similitud: {{ rec["similitud"] }}{{ "%" }}
+        </p>
+
         <p>
             <a class="card-rec-link" href={{ rec["url"] }}, target="_blank">Scryfall</a>
         </p>
