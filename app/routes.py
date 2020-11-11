@@ -12,12 +12,9 @@ from app.com_data import RECS, NOMBRES, COMS
 
 from app.config import Config
 from flask_sqlalchemy import SQLAlchemy
-
-
+from flask_migrate import Migrate
 
 #Bootstrap(app)
-app.config['SECRET_KEY'] = "cv9ubvwern4856dfgnb34jnc43m90kvdf890dsfauzd"
-
 
 @app.route("/recomendaciones/<string:commander>", methods=["GET", "POST"])
 def com_recoms(commander):
