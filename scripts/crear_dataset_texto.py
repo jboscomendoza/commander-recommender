@@ -65,18 +65,18 @@ oracle_text = [i.lower() for i in oracle_text]
 oracle_text = [re.sub('[.,:()"]|(â€”)', " ", i).split() for i in oracle_text]
 
 
-names = [i["name"] for i in commanders_json]
 ids   = [i["id"] for i in commanders_json]
+names = [i["name"] for i in commanders_json]
 cards = [i["scryfall_uri"] for i in commanders_json]
 pics  = get_pic_urls(edh)
 
+commanders_df = pd.DataFrame({"card_id":ids, "card_name":names, "url_scryfall":cards, "url_img":pics})
 
 
 # Generar lexico, corpus y tf idf
 lexico = gensim.corpora.Dictionary(oracle_text)
 corpus = [lexico.doc2bow(i) for i in oracle_text]
 tf_idf = gensim.models.TfidfModel(corpus)
-
 
 # Almacenamiento de similitudes
 sims = gensim.similarities.Similarity('text_sim/', tf_idf[corpus], num_features=len(lexico))
@@ -100,8 +100,10 @@ def sims_a_lista(sims_orden):
     lista_recomendaciones = []
 
     for i in sims_orden:
+        # Nombre e id commander origen
         nombre = i[0][1]
-        salida = {"commander": nombre}
+        commander_id = i[0][2]
+        salida = {"commander": nombre, "id":commander_id}
         recomendaciones = []
         for rec in i[1:]:
             valor = rec[0] * 100
@@ -113,9 +115,29 @@ def sims_a_lista(sims_orden):
     return lista_recomendaciones
 
 
+
+def sims_a_df(sims_orden):
+    lista_recomendaciones = []
+    for i in sims_orden:
+        # id de commander origen
+        commander_id = i[0][2]
+        recomendaciones = []
+        for rec in i[1:]:
+            valor = rec[0] * 100
+            valor = np.round(valor, 2).item()
+            item = {"card_id":commander_id, "rec_id":rec[2], "similitud": valor}
+            recomendaciones.append(item)
+        recomendaciones = pd.DataFrame(recomendaciones)
+        lista_recomendaciones.append(recomendaciones)
+    return pd.concat(lista_recomendaciones)
+
+
+
 # Exportar recomendaciones
 sims_orden = ordenar_sims(sim_matrix)
 lista_recom = sims_a_lista(sims_orden)
+df_recom = sims_a_df(sims_a_df)
+
 
 with open('recomendaciones.json', 'w', encoding='utf-8') as f:
     json.dump(lista_recom, f, ensure_ascii=False, indent=1)
