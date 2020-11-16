@@ -1,13 +1,14 @@
 from flask import Flask
 from app import app
-
+from app import db
+from app.models import Commander, RecsText
 
 import json
 from flask import render_template
 from flask import request, redirect, url_for
 from flask_bootstrap import Bootstrap 
 from markupsafe import escape
-from app.forms import ChooseForm
+from app.forms import ChooseForm, CommanderForm
 from app.com_data import RECS, NOMBRES, COMS
 
 from app.config import Config
@@ -44,4 +45,32 @@ def comandante():
     return render_template(
         "index.html",
         com_form=com_form
+    )
+
+@app.route("/prueba/", methods=["GET", "POST"])
+def prueba():
+    com_form = CommanderForm()
+    comando = Commander.query.all()
+
+    if com_form.validate_on_submit() and com_form.submit:
+        commander = com_form.commander.data
+        return redirect(url_for("rec_prueba", commander=commander))
+    return render_template(
+        "prueba.html",
+        com_form=com_form,
+        comando=comando
+    )
+
+@app.route("/rec-prueba/<string:commander>", methods=["GET", "POST"])
+def rec_prueba(commander):
+    commander_data = Commander.query.filter_by(card_id=commander).first_or_404()
+    recs_tabla = RecsText.query.filter_by(card_id=commander).all()
+    recs_ids = [i.rec_id for i in recs_tabla]
+    recomendaciones = Commander.query.filter(Commander.card_id.in_(recs_ids)).all()
+    #return recomendaciones[0].card_name
+    return render_template(
+        "rec-prueba.html", 
+        commander_data=commander_data,
+        recomendaciones=recomendaciones,
+        recs_tabla=recs_tabla
     )

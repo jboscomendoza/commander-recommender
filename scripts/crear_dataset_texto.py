@@ -7,26 +7,6 @@ import numpy as np
 import pandas as pd
 
 
-with open('commanders.json') as json_file:
-    commanders_json = json.load(json_file, encoding="utf-8")
-
-
-campos = ["id", "name", "oracle_text", "card_faces", "image_uris"]
-
-
-edh = []
-
-
-for carta in commanders_json:
-    datos = {}
-    for field in campos:
-        try:
-            datos[field] = carta[field]
-        except:
-            datos[field] = ""
-    edh.append(datos)
-
-
 def get_oracle_text(edh):
     textos = []
     for carta in edh:
@@ -53,6 +33,69 @@ def get_pic_urls(edh):
             card_url = carta["image_uris"]["normal"]
             pic_urls.append(card_url)
     return pic_urls
+
+
+def ordenar_sims(sim_orig):
+    sims_orden = []
+    for i in sims[sim_orig]:
+        conjunto = list(tuple(zip(i, names, ids, cards, pics)))
+        conjunto = sorted(conjunto, reverse=True)
+        sims_orden.append(conjunto[:11])
+    return sims_orden
+
+
+def sims_a_lista(sims_orden):
+    lista_recomendaciones = []
+
+    for i in sims_orden:
+        # Nombre e id commander origen
+        nombre = i[0][1]
+        commander_id = i[0][2]
+        salida = {"commander": nombre, "id":commander_id}
+        recomendaciones = []
+        for rec in i[1:]:
+            valor = rec[0] * 100
+            valor = np.round(valor, 2).item()
+            item = {"commander":rec[1], "similitud": valor, "id": rec[2], "url":rec[3], "pic":rec[4]}
+            recomendaciones.append(item)
+        salida["recomendaciones"] = recomendaciones
+        lista_recomendaciones.append(salida)
+    return lista_recomendaciones
+
+
+def sims_a_df(sims_orden):
+    lista_recomendaciones = []
+    for i in sims_orden:
+        # id de commander origen
+        commander_id = i[0][2]
+        recomendaciones = []
+        for rec in i[1:]:
+            valor = rec[0] * 100
+            valor = np.round(valor, 2).item()
+            item = {"card_id":commander_id, "rec_id":rec[2], "similitud": valor}
+            recomendaciones.append(item)
+        recomendaciones = pd.DataFrame(recomendaciones)
+        lista_recomendaciones.append(recomendaciones)
+    return pd.concat(lista_recomendaciones)
+
+
+
+with open('commanders.json') as json_file:
+    commanders_json = json.load(json_file, encoding="utf-8")
+
+
+campos = ["id", "name", "oracle_text", "card_faces", "image_uris"]
+edh = []
+
+
+for carta in commanders_json:
+    datos = {}
+    for field in campos:
+        try:
+            datos[field] = carta[field]
+        except:
+            datos[field] = ""
+    edh.append(datos)
 
 
 mana_cost = "{[0-9WUBRG/PXC]*}"
@@ -86,61 +129,18 @@ sims = gensim.similarities.Similarity('text_sim/', tf_idf[corpus], num_features=
 sim_matrix = tf_idf[corpus]
 
 
-# Procesamiento para json
-def ordenar_sims(sim_orig):
-    sims_orden = []
-    for i in sims[sim_orig]:
-        conjunto = list(tuple(zip(i, names, ids, cards, pics)))
-        conjunto = sorted(conjunto, reverse=True)
-        sims_orden.append(conjunto[:11])
-    return sims_orden
-
-
-def sims_a_lista(sims_orden):
-    lista_recomendaciones = []
-
-    for i in sims_orden:
-        # Nombre e id commander origen
-        nombre = i[0][1]
-        commander_id = i[0][2]
-        salida = {"commander": nombre, "id":commander_id}
-        recomendaciones = []
-        for rec in i[1:]:
-            valor = rec[0] * 100
-            valor = np.round(valor, 2).item()
-            item = {"commander":rec[1], "similitud": valor, "id": rec[2], "url":rec[3], "pic":rec[4]}
-            recomendaciones.append(item)
-        salida["recomendaciones"] = recomendaciones
-        lista_recomendaciones.append(salida)
-    return lista_recomendaciones
-
-
-
-def sims_a_df(sims_orden):
-    lista_recomendaciones = []
-    for i in sims_orden:
-        # id de commander origen
-        commander_id = i[0][2]
-        recomendaciones = []
-        for rec in i[1:]:
-            valor = rec[0] * 100
-            valor = np.round(valor, 2).item()
-            item = {"card_id":commander_id, "rec_id":rec[2], "similitud": valor}
-            recomendaciones.append(item)
-        recomendaciones = pd.DataFrame(recomendaciones)
-        lista_recomendaciones.append(recomendaciones)
-    return pd.concat(lista_recomendaciones)
-
-
-
 # Exportar recomendaciones
 sims_orden = ordenar_sims(sim_matrix)
 lista_recom = sims_a_lista(sims_orden)
-df_recom = sims_a_df(sims_a_df)
-
+recom_df = sims_a_df(sims_orden)
 
 with open('recomendaciones.json', 'w', encoding='utf-8') as f:
     json.dump(lista_recom, f, ensure_ascii=False, indent=1)
+
+
+# A csv
+commanders_df.to_csv("commanders_df.csv")
+recom_df.to_csv("recom_df.csv")
 
 
 # Lexico e indice manual

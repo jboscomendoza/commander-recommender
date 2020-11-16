@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Recomendaciones{% endblock %}
+
+{% block body %}
+{% block content %}
+
+<div class="cont-rec">
+
+    <div class="commander-rec">
+        <img class="commander-rec-pic" src={{ commander_data.url_img }}>
+        <h3>{{ commander_data.card_name }}</h3>
+    </div>
+
+    <div class="card-rec">
+    {% for rec in recomendaciones %}
+        <div class="card-rec-card">
+        <a href={{ url_for('com_recoms', commander=rec.card_id) }}>
+            <img class="card-rec-pic" src={{ rec.url_img }}>
+        </a>
+        <p class="card-rec-name">{{rec.card_name}}</p>
+    {% endfor %}
+
+    {% for sim in recs_tabla %}
+        <p class="card-rec-sim">
+        {% if sim.similitud >= 50 %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_alto.png") }}> 
+        {% elif  sim.similitud >= 30 %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_medio.png") }}> 
+        {% else %}
+        <img class="sim_icon" src={{ url_for('static', filename="img/sim_bajo.png") }}> 
+        {% endif %}
+        Similitud: {{ sim.similitud }}{{ "%" }}
+        </p>
+    {% endfor %}
+
+    {% for rec in recomendaciones %}
+        <p>
+            <a class="card-rec-link" href={{ rec.url_scryfall }}, target="_blank">Scryfall</a>
+        </p>
+    {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+{% endblock body %}
