@@ -64,13 +64,10 @@ def prueba():
 @app.route("/rec-prueba/<string:commander>", methods=["GET", "POST"])
 def rec_prueba(commander):
     commander_data = Commander.query.filter_by(card_id=commander).first_or_404()
-    recs_tabla = RecsText.query.filter_by(card_id=commander).all()
-    recs_ids = [i.rec_id for i in recs_tabla]
-    recomendaciones = Commander.query.filter(Commander.card_id.in_(recs_ids)).all()
-    #return recomendaciones[0].card_name
+    recomendaciones = RecsText.query.join(Commander).filter(RecsText.card_id == commander).all()
+
     return render_template(
         "rec-prueba.html", 
         commander_data=commander_data,
-        recomendaciones=recomendaciones,
-        recs_tabla=recs_tabla
+        recomendaciones=recomendaciones
     )

@@ -16,6 +16,7 @@ class RecsText(db.Model):
     card_id = db.Column(db.String(64), index=True)
     rec_id = db.Column(db.String(120), db.ForeignKey("commander.card_id"))
     similitud = db.Column(db.Numeric())
+    commander = db.relationship('Commander', backref='card_recs')
 
     def __repr__(self):
         return "<Similitud: {}>".format(self.similitud)

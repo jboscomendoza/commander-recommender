@@ -10,37 +10,36 @@
     <div class="commander-rec">
         <img class="commander-rec-pic" src={{ commander_data.url_img }}>
         <h3>{{ commander_data.card_name }}</h3>
+        <p>
+            <a class="card-rec-link" href={{ commander_data.url_scryfall }}, target="_blank">Scryfall</a>
+        </p>
+
     </div>
 
     <div class="card-rec">
     {% for rec in recomendaciones %}
         <div class="card-rec-card">
-        <a href={{ url_for('com_recoms', commander=rec.card_id) }}>
-            <img class="card-rec-pic" src={{ rec.url_img }}>
+        <a href={{ url_for('rec_prueba', commander=rec.commander.card_id) }}>
+            <img class="card-rec-pic" src={{ rec.commander.url_img }}>
         </a>
-        <p class="card-rec-name">{{rec.card_name}}</p>
-    {% endfor %}
-
-    {% for sim in recs_tabla %}
+        <p class="card-rec-name">{{ rec.commander.card_name }}</p>
+        
         <p class="card-rec-sim">
-        {% if sim.similitud >= 50 %}
+        {% if rec.similitud >= 50 %}
         <img class="sim_icon" src={{ url_for('static', filename="img/sim_alto.png") }}> 
-        {% elif  sim.similitud >= 30 %}
+        {% elif rec.similitud >= 30 %}
         <img class="sim_icon" src={{ url_for('static', filename="img/sim_medio.png") }}> 
         {% else %}
         <img class="sim_icon" src={{ url_for('static', filename="img/sim_bajo.png") }}> 
         {% endif %}
-        Similitud: {{ sim.similitud }}{{ "%" }}
+        Similitud: {{ rec.similitud | round(1, "floor") }}{{ "%" }}
         </p>
-    {% endfor %}
 
-    {% for rec in recomendaciones %}
         <p>
-            <a class="card-rec-link" href={{ rec.url_scryfall }}, target="_blank">Scryfall</a>
+            <a class="card-rec-link" href={{ rec.commander.url_scryfall }}, target="_blank">Scryfall</a>
         </p>
-    {% endfor %}
-
         </div>
+    {% endfor %}
     </div>
 
 </div>
